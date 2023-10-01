@@ -28,20 +28,39 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.viewBox = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.viewBox)).BeginInit();
             this.SuspendLayout();
             // 
-            // Form1
+            // viewBox
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Name = "Form1";
+            this.viewBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.viewBox.Enabled = false;
+            this.viewBox.Location = new System.Drawing.Point(0, 0);
+            this.viewBox.Name = "viewBox";
+            this.viewBox.Size = new System.Drawing.Size(1904, 1041);
+            this.viewBox.TabIndex = 0;
+            this.viewBox.TabStop = false;
+            // 
+            // LookingGlassForm
+            // 
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+            this.ClientSize = new System.Drawing.Size(1904, 1041);
+            this.Controls.Add(this.viewBox);
+            this.Name = "LookingGlassForm";
+            this.Opacity = 0.5D;
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "LookingGlass";
+            this.TopMost = true;
+            this.TransparencyKey = System.Drawing.Color.Transparent;
+            ((System.ComponentModel.ISupportInitialize)(this.viewBox)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
+
+        private System.Windows.Forms.PictureBox viewBox;
     }
 }
 
