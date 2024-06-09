@@ -157,8 +157,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			break;
+		case WM_MOVE:
+			InvalidateRect(hWnd, NULL, TRUE);
+			UpdateWindow(hWnd);
 		default:
-				return DefWindowProc(hWnd, message, wParam, lParam);
+			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
 }
@@ -167,19 +170,31 @@ void Paint(const HWND hWnd, const HDC& hdc)
 {
 	//PaintDebugMessages(hdc, hWnd);
 
+	RECT appRect{ NULL };
+	GetWindowRect(hWnd, &appRect);
+
+	RECT clientRect{ NULL };
+	GetClientRect(hWnd, &clientRect);
+
 	// Draw a black border around the client area
-	RECT rect;
-	GetClientRect(hWnd, &rect);
 	HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 0));
-	FrameRect(hdc, &rect, hBrush);
+	FrameRect(hdc, &clientRect, hBrush);
 	DeleteObject(hBrush);
 
+	// Render text as with transparent background
 	SetBkMode(hdc, TRANSPARENT);
 
-	// Retrieve the client area rectangle
-	TCHAR clientRect[64];
-	_stprintf_s(clientRect, _T("Client Rect: (%d, %d)"), rect.right - rect.left, rect.bottom - rect.top);
-	TextOut(hdc, 1725, 980, clientRect, lstrlen(clientRect));
+	TCHAR appPosStr[64];
+	_stprintf_s(appPosStr, _T("App Pos: (%d, %d)"), appRect.left, appRect.top);
+	TextOut(hdc, 1725, 940, appPosStr, lstrlen(appPosStr));
+
+	TCHAR appRectStr[64];
+	_stprintf_s(appRectStr, _T("App Rect: (%d, %d)"), appRect.right - appRect.left, appRect.bottom - appRect.top);
+	TextOut(hdc, 1725, 960, appRectStr, lstrlen(appRectStr));
+
+	TCHAR clientRectStr[64];
+	_stprintf_s(clientRectStr, _T("Client Rect: (%d, %d)"), clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
+	TextOut(hdc, 1725, 980, clientRectStr, lstrlen(clientRectStr));
 
 	TextOut(hdc, 1725, 1000, egoStr, egoStrLen);
 }
