@@ -15,4 +15,13 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
-void Paint(const HDC& hdc);
+// Magenta color
+#define TRANSPARENCY_KEY_COLOR RGB(255, 0, 255)
+
+/* Ego string declaration */
+TCHAR egoStr[] = _T("LookingGlass by Alan C.");
+/* Length of the Ego string */
+int egoStrLen = lstrlen(egoStr);
+
+void Paint(const HWND hWnd, const HDC& hdc);
+void PaintDebugMessages(const HDC& hdc, const HWND& hWnd);

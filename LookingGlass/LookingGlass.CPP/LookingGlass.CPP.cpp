@@ -62,7 +62,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.hInstance = hInstance;
 	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_LOOKINGGLASSCPP));
 	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.hbrBackground = (HBRUSH)CreateSolidBrush(TRANSPARENCY_KEY_COLOR);
 	wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_LOOKINGGLASSCPP);
 	wcex.lpszClassName = szWindowClass;
 	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
@@ -84,16 +84,28 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance; // Store instance handle in our global variable
 
-	HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+	HWND hWnd = CreateWindowW(
+		szWindowClass, 
+		szTitle, 
+		WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, 0, 
+		1920, 1080, 
+		nullptr, nullptr, hInstance, nullptr);
 
 	if (!hWnd)
 	{
 		return FALSE;
 	}
 
+	// Set the window as topmost
+	SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+
+	// Set the window as a layered window to enable transparency
 	SetWindowLong(hWnd, GWL_EXSTYLE, GetWindowLong(hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-	SetLayeredWindowAttributes(hWnd, RGB(0, 0, 0), (256 * .50), LWA_ALPHA);
+
+	// Set the transparency color key
+	COLORREF clrKey = TRANSPARENCY_KEY_COLOR;
+	SetLayeredWindowAttributes(hWnd, clrKey, 255, LWA_COLORKEY);
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
@@ -137,7 +149,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			PAINTSTRUCT ps;
 			HDC hdc = BeginPaint(hWnd, &ps);
 			
-			Paint(hdc);
+			Paint(hWnd, hdc);
 
 			EndPaint(hWnd, &ps);
 		}
@@ -146,16 +158,51 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			PostQuitMessage(0);
 			break;
 		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
+				return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
 }
 
-void Paint(const HDC& hdc)
+void Paint(const HWND hWnd, const HDC& hdc)
 {
-	TextOut(hdc, 1000, 5, _T("Hello"), _tcslen(_T("Hello")));
-	TextOut(hdc, 1000, 1000, _T("Hello"), _tcslen(_T("Hello")));
-	TextOut(hdc, 5, 1000, _T("Hello"), _tcslen(_T("Hello")));
+	//PaintDebugMessages(hdc, hWnd);
+
+	// Draw a black border around the client area
+	RECT rect;
+	GetClientRect(hWnd, &rect);
+	HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 0));
+	FrameRect(hdc, &rect, hBrush);
+	DeleteObject(hBrush);
+
+	SetBkMode(hdc, TRANSPARENT);
+
+	// Retrieve the client area rectangle
+	TCHAR clientRect[64];
+	_stprintf_s(clientRect, _T("Client Rect: (%d, %d)"), rect.right - rect.left, rect.bottom - rect.top);
+	TextOut(hdc, 1725, 980, clientRect, lstrlen(clientRect));
+
+	TextOut(hdc, 1725, 1000, egoStr, egoStrLen);
+}
+
+void PaintDebugMessages(const HDC& hdc, const HWND& hWnd)
+{
+	//// Retrieve the mouse position
+	//POINT pt;
+	//GetCursorPos(&pt);
+	////ScreenToClient(hWnd, &pt); // Convert screen coordinates to client coordinates
+
+	//// Convert the mouse position to a string
+	//TCHAR szMousePos[64];
+	//TCHAR dragStartStr[64];
+	//TCHAR dragCurrStr[64];
+	//_stprintf_s(szMousePos, _T("Mouse Position: (%d, %d)"), pt.x, pt.y);
+	//_stprintf_s(dragStartStr, _T("Drag Start: (%d, %d)"), dragStart.x, dragStart.y);
+	//_stprintf_s(dragCurrStr, _T("Drag Current: (%d, %d)"), dragCurrent.x, dragCurrent.y);
+
+	//// Draw the mouse position on the window
+	//TextOut(hdc, 10, 10, szMousePos, lstrlen(szMousePos));
+	//TextOut(hdc, 10, 30, dragStartStr, lstrlen(dragStartStr));
+	//TextOut(hdc, 10, 50, dragCurrStr, lstrlen(dragCurrStr));
 }
 
 // Message handler for about box.
