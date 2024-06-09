@@ -92,6 +92,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 	}
 
+	SetWindowLong(hWnd, GWL_EXSTYLE, GetWindowLong(hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+	SetLayeredWindowAttributes(hWnd, RGB(0, 0, 0), (256 * .50), LWA_ALPHA);
+
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
 
